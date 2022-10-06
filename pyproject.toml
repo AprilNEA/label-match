@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "label-match"
+version = "0.1.0"
+description = ""
+authors = ["Xuan <37977109+DargonXuan@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "label_match"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+opencv-python = "4.5.3.56"
+Pillow = "^9.2.0"
+pydantic = "^1.10.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

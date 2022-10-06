@@ -27,6 +27,15 @@ def calculate_IoU(predicted_bound: Tuple[Decimal, Decimal, Decimal, Decimal],
     gxmin, gymin, gxmax, gymax = ground_truth_bound
     # print("原标记框G的坐标是：({}, {}, {}, {})".format(gxmin, gymin, gxmax, gymax))
 
+    pxmax = float(pxmax)
+    pxmin = float(pxmin)
+    pymin = float(pymin)
+    pymax = float(pymax)
+    gxmax = float(gxmax)
+    gxmin = float(gxmin)
+    gymin = float(gymin)
+    gymax = float(gymax)
+
     parea = (pxmax - pxmin) * (pymax - pymin)  # 计算P的面积
     garea = (gxmax - gxmin) * (gymax - gymin)  # 计算G的面积
     # print("预测框P的面积是：{}；原标记框G的面积是：{}".format(parea, garea))
@@ -92,17 +101,18 @@ def json2coordinates(points: List) -> Tuple[Decimal, Decimal, Decimal, Decimal]:
     return x_min, y_min, x_max, y_max
 
 
-with open('2.json') as f:
-    json_data = json.loads(f.read())
+if __name__ == '__main__':
+    with open('data/label_json/1156.json') as f:
+        json_data = json.loads(f.read())
 
-data = []
-with open('2.txt') as f:
-    for line in f.readlines():
-        data.append(line.split()[1:])
+    data = []
+    with open('data/label_img/1156.txt') as f:
+        for line in f.readlines():
+            data.append(line.split()[1:])
 
-main_data = json_data["shapes"]
-for i in main_data:
-    a = json2coordinates(i["points"])
-    for j in data:
-        b = yolo2coordinates(j[0], j[1], j[2], j[3], 1280, 768)
-        print(calculate_IoU(a, b))
+    main_data = json_data["shapes"]
+    for i in main_data:
+        a = json2coordinates(i["points"])
+        for j in data:
+            b = yolo2coordinates(j[0], j[1], j[2], j[3], 1280, 768)
+            print(calculate_IoU(a, b))
