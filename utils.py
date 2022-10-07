@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Tuple
 from shapely.geometry import Polygon
 
 
-def if_intersect(data1, data2):
+def if_intersect(data1: List, data2: List) -> float:
     """
     任意两个图形的相交面积的计算
     :param data1: 当前物体
@@ -20,8 +20,8 @@ def if_intersect(data1, data2):
     return inter_area
 
 
-def xywh2two_coordinate(row, width, height):
-    print(width,height)
+def xywh2two_coordinate(row, width, height) -> Tuple:
+    print(width, height)
     len = 0
     for r in row:
         row[len] = float(r)
@@ -34,7 +34,7 @@ def xywh2two_coordinate(row, width, height):
     return x_min, y_min, x_max, y_max
 
 
-def xywh2four_coordinate(row, width, height):
+def xywh2four_coordinate(row, width, height) -> List[Tuple]:
     x_min, y_min, x_max, y_max = xywh2two_coordinate(row, width, height)
     return [
         (x_min, y_min),
