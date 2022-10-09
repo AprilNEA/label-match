@@ -20,7 +20,7 @@ example [here](https://github.com/wkentaro/labelme/blob/main/examples/tutorial/a
 ### 1.Poetry(recommend)
 
 ```shell
-poetry run python3 label-match.py \
+poetry run python3 label_match.py \
 --labelme_dir <your_labelme_path>
 --labelimg_dir <your_labelimg_path>
 --output_dir <your_output_path>
@@ -39,7 +39,7 @@ pip3 install -r requirements.txt
 Then run it:
 
 ```shell
-python3 label-match.py \
+python3 label_match.py \
 --labelme_dir <your_labelme_path>
 --labelimg_dir <your_labelimg_path>
 --output_dir <your_output_path>
@@ -50,6 +50,6 @@ python3 label-match.py \
 ### TODO lists
 
 - [ ] Add test module
-- [ ] Use external tag list
+- [x] Use external label lists
 - [ ] KMP matching algorithm
 - [ ] Add conversion options

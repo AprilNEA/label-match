@@ -3,11 +3,12 @@ import json
 import argparse
 
 from os import PathLike
-from typing import Union, Tuple, List
+from typing import Union, List
 
 import utils
 
-label_list = ['B1', 'B2', 'B3', 'B4', 'B5', 'BO', 'BS', 'R1', 'R2', 'R3', 'R4', 'R5', 'RO', 'RS']  # 标签列表
+
+# label_list = ['B1', 'B2', 'B3', 'B4', 'B5', 'BO', 'BS', 'R1', 'R2', 'R3', 'R4', 'R5', 'RO', 'RS']  # 标签列表
 
 
 class ImgPoints:
@@ -34,6 +35,19 @@ class MePoints:
         self.points = points_data["shapes"]
 
 
+def read_classes(class_data: Union[str, PathLike, bytes]):
+    label_list: List = []
+    if isinstance(class_data, str):
+        try:
+            with open(class_data) as f:
+                for line in f.readlines():
+                    label_list.append(line.split())
+        except OSError as e:
+            print("unable to open classes.txt")
+            raise e
+    return label_list
+
+
 def output(label: int, img_point: List, me_point: List, final_path) -> None:
     out1 = ""
     out2 = ""
@@ -46,7 +60,8 @@ def output(label: int, img_point: List, me_point: List, final_path) -> None:
         f.writelines(out + "\n")
 
 
-def main(labelme_dir, labelimg_dir, final_dir) -> None:
+def main(labelme_dir, labelimg_dir, final_dir, classes_path) -> None:
+    label_list = read_classes(classes_path)
     if not os.path.exists(final_dir):
         os.makedirs(final_dir)
 
@@ -83,8 +98,12 @@ if __name__ == '__main__':
     parser.add_argument('--labelme_dir', type=str, default='', help='Location of the original labelme json datasets')
     parser.add_argument('--labelimg_dir', type=str, default='', help='Location of the original labelimg txt datasets')
     parser.add_argument('--output_dir', type=str, default='', help='Output location of the changed txt dataset')
+    parser.add_argument('--classes_file', type=str, default='', help='Path to the file where the list of tags is saved')
     args = parser.parse_args()
     try:
-        main(args.labelme_dir, args.labelimg_dir, args.output_dir)
+        main(args.labelme_dir, args.labelimg_dir, args.output_dir, args.classes_file)
+    except OSError as e:
+        print("Some thing wrong with your given path")
+        raise e
     finally:
         print("Finish")
