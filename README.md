@@ -6,7 +6,7 @@ together in another file.
 The label output format of labelimg is YOLO Darknet TXT, ex:
 
 ```
-1 0.408 0.30266666666666664 0.104 0.15733333333333333
+1 0.408 0.302 0.104 0.15
 1 0.245 0.424 0.046 0.08
 ```
 
@@ -44,3 +44,12 @@ python3 label-match.py \
 --labelimg_dir <your_labelimg_path>
 --output_dir <your_output_path>
 ```
+
+## Contribute
+
+### TODO lists
+
+- [ ] Add test module
+- [ ] Use external tag list
+- [ ] KMP matching algorithm
+- [ ] Add conversion options
