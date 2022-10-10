@@ -47,9 +47,14 @@ python3 label_match.py \
 
 ## Contribute
 
+[commit message guidelines](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines)
+
 ### TODO lists
 
 - [ ] Add test module
 - [x] Use external label lists
-- [ ] KMP matching algorithm
+- [ ] better matching algorithm
 - [ ] Add conversion options
+- [ ] Async I/O
+
+
