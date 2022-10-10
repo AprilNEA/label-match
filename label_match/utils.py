@@ -21,12 +21,10 @@ def if_intersect(data1: List, data2: List) -> float:
 
 
 def xywh2two_coordinate(row, width, height) -> Tuple:
-    print(width, height)
     len = 0
     for r in row:
         row[len] = float(r)
         len += 1
-    print(row)
     x_min = min(max(0.0, row[1] - row[3] / 2), 1.0) * width
     y_min = min(max(0.0, row[2] - row[4] / 2), 1.0) * height
     x_max = min(max(0.0, row[1] + row[3] / 2), 1.0) * width
