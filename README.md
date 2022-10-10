@@ -55,6 +55,6 @@ python3 label_match.py \
 - [x] Use external label lists
 - [ ] better matching algorithm
 - [ ] Add conversion options
-- [ ] Async I/O
+- [x] Async I/O
 
 
