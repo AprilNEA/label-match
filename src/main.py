@@ -29,8 +29,9 @@ class Points:
             except json.decoder.JSONDecodeError as e:
                 print(f"{me_data}出现错误")
                 raise e
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as e:
                 print(f"{me_data}出现编码错误")
+                raise e
             finally:
                 self.height = points_data["imageHeight"]
                 self.width = points_data["imageWidth"]
@@ -45,6 +46,15 @@ class Points:
                 raise e
         for points in self.img_points_origin:
             self.img_points.append(utils.xywh2four_coordinate(points, self.width, self.height))
+
+    def get_correspond(self, t_data: List) -> List:
+        """
+        for the label data of labelimg, find the correct serial number in origin list.
+        :param t_data:
+        :return:
+        """
+        sn: int = self.img_points.index(t_data)
+        return self.img_points_origin[sn]
 
 
 async def read_classes(class_data: Union[str, PathLike, bytes]):
@@ -70,21 +80,18 @@ async def output(label: int, img_point: List, me_point: List, final_path) -> Non
     out = str(label) + out1 + out2
     async with aiofiles.open(final_path, 'at') as f:
         await f.writelines(out + "\n")
+    del out1, out2
 
 
 async def points_callback(label_data: Points, label_list, final_path):
     for me_point in label_data.me_points:
-        num = 0
         for img_point in label_data.img_points:
             area = utils.if_intersect(me_point["points"], img_point)
             if area > 0:
-                label_data.img_points.remove(img_point)
                 label = label_list.index(me_point["label"])
-                await output(label, label_data.img_points_origin[num],
+                await output(label, label_data.get_correspond(img_point),
                              utils.normalized2coordinate4(me_point["points"], label_data.width,
-                                                          label_data.height),
-                             final_path)
-                num += 1
+                                                          label_data.height), final_path)
                 print(f"Match success.{label_data.path}")
                 break
             else:
