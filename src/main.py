@@ -90,7 +90,7 @@ async def points_callback(label_data: Points, label_list, final_path):
             if area > 0:
                 label = label_list.index(me_point["label"])
                 await output(label, label_data.get_correspond(img_point),
-                             utils.normalized2coordinate4(me_point["points"], label_data.width,
+                             utils.coordinate2normalized4(me_point["points"], label_data.width,
                                                           label_data.height), final_path)
                 print(f"Match success.{label_data.path}")
                 break
