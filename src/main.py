@@ -7,7 +7,7 @@ import aiofiles
 from os import PathLike
 from typing import Union, List
 
-import utils
+from src import utils
 
 
 class Points:
@@ -26,6 +26,11 @@ class Points:
             except FileNotFoundError as e:
                 print("No labelme data")
                 raise e
+            except json.decoder.JSONDecodeError as e:
+                print(f"{me_data}出现错误")
+                raise e
+            except UnicodeDecodeError:
+                print(f"{me_data}出现编码错误")
             finally:
                 self.height = points_data["imageHeight"]
                 self.width = points_data["imageWidth"]
@@ -36,7 +41,7 @@ class Points:
                     for line in f.readlines():
                         self.img_points_origin.append(line.split())
             except FileNotFoundError as e:
-                print("The corresponding labelimg data is missing")
+                print(f"{img_data}The corresponding labelimg data is missing")
                 raise e
         for points in self.img_points_origin:
             self.img_points.append(utils.xywh2four_coordinate(points, self.width, self.height))
@@ -95,6 +100,8 @@ async def main(labelme_dir, labelimg_dir, final_dir, classes_path) -> None:
 
     for cnt, json_name in enumerate(list_labelme):
         labelme_path = labelme_dir + json_name
+        if ".json" not in json_name:
+            continue
         labelimg_path = labelimg_dir + json_name.replace('.json', '.txt')
         final_path = final_dir + json_name.replace('.json', '.txt')
         label_data = Points(labelme_path, labelimg_path)
