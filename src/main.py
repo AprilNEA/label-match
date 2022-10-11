@@ -1,11 +1,11 @@
 import asyncio
-import os
+import os, sys
 import json
-import argparse
-
-import aiofiles
 from os import PathLike
 from typing import Union, List
+
+import aiofiles
+from loguru import logger
 
 from src import utils
 
@@ -24,13 +24,10 @@ class Points:
                 with open(me_data) as fp:
                     points_data = json.loads(fp.read())
             except FileNotFoundError as e:
-                print("No labelme data")
+                logger.error("No labelme data.")
                 raise e
-            except json.decoder.JSONDecodeError as e:
-                print(f"{me_data}出现错误")
-                raise e
-            except UnicodeDecodeError as e:
-                print(f"{me_data}出现编码错误")
+            except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
+                logger.error("There is some encoding error about labelme's json file.")
                 raise e
             finally:
                 self.height = points_data["imageHeight"]
@@ -42,7 +39,7 @@ class Points:
                     for line in f.readlines():
                         self.img_points_origin.append(line.split())
             except FileNotFoundError as e:
-                print(f"{img_data}The corresponding labelimg data is missing")
+                logger.error(f"{img_data}The corresponding labelimg data is missing")
                 raise e
         for points in self.img_points_origin:
             self.img_points.append(utils.xywh2four_coordinate(points, self.width, self.height))
@@ -64,8 +61,8 @@ async def read_classes(class_data: Union[str, PathLike, bytes]):
             async with aiofiles.open(class_data) as f:
                 for line in await f.readlines():
                     label_list.append(*line.split())
-        except OSError as e:
-            print("unable to open classes.txt")
+        except (OSError, FileNotFoundError) as e:
+            logger.error("unable to open classes.txt")
             raise e
     return label_list
 
@@ -80,31 +77,41 @@ async def output(label: int, img_point: List, me_point: List, final_path) -> Non
     out = str(label) + out1 + out2
     async with aiofiles.open(final_path, 'at') as f:
         await f.writelines(out + "\n")
-    del out1, out2
 
 
 async def points_callback(label_data: Points, label_list, final_path):
+    tasks = []
+    num = 0
+    logger.info(f"There are {len(label_data.me_points)} points in the labelme")
+    logger.info(f"There are {len(label_data.img_points)} points in the labelimg")
+    logger.info(f"Worst case will be {len(label_data.me_points) * len(label_data.img_points)} operations")
     for me_point in label_data.me_points:
         for img_point in label_data.img_points:
+            num += 1
             area = utils.if_intersect(me_point["points"], img_point)
+            logger.info(f"The operation has been carried out {num} times")
+            logger.debug(f"labelme points: {me_point}")
+            logger.debug(f"labelimg points: {img_point}")
             if area > 0:
                 label = label_list.index(me_point["label"])
-                await output(label, label_data.get_correspond(img_point),
-                             utils.coordinate2normalized4(me_point["points"], label_data.width,
-                                                          label_data.height), final_path)
-                print(f"Match success.{label_data.path}")
-                break
+                tasks.append(output(label, label_data.get_correspond(img_point),
+                                    utils.coordinate2normalized4(me_point["points"], label_data.width,
+                                                                 label_data.height), final_path))
+                logger.info(f"{label_data.path} match success.")
             else:
-                print(f"Match error.{label_data.path}")
+                logger.info(f"{label_data.path} match error.")
+    await asyncio.gather(*tasks)
 
 
+@logger.catch
 async def main(labelme_dir, labelimg_dir, final_dir, classes_path) -> None:
     label_list = await read_classes(classes_path)
     if not os.path.exists(final_dir):
         os.makedirs(final_dir)
 
     list_labelme = os.listdir(labelme_dir)
-
+    file_num = len(list_labelme)
+    logger.info(f"There are {file_num} files.")
     for cnt, json_name in enumerate(list_labelme):
         labelme_path = labelme_dir + json_name
         if ".json" not in json_name:
@@ -113,28 +120,4 @@ async def main(labelme_dir, labelimg_dir, final_dir, classes_path) -> None:
         final_path = final_dir + json_name.replace('.json', '.txt')
         label_data = Points(labelme_path, labelimg_path)
         await points_callback(label_data, label_list, final_path)
-        del label_data
     await asyncio.sleep(1)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--labelme_dir', type=str, default='', help='Location of the original labelme json datasets')
-    parser.add_argument('--labelimg_dir', type=str, default='', help='Location of the original labelimg txt datasets')
-    parser.add_argument('--output_dir', type=str, default='', help='Output location of the changed txt dataset')
-    parser.add_argument('--classes_file', type=str, default='', help='Path to the file where the list of tags is saved')
-    args = parser.parse_args()
-    try:
-        asyncio.run(
-            main(args.labelme_dir, args.labelimg_dir, args.output_dir, args.classes_file)
-        )
-    except OSError as e:
-        print("Some thing wrong with OS system,maybe your path or file have something wrong.")
-        print("Check your file and path.The programme will be exited.")
-        exit()
-    except RuntimeWarning as e:
-        print("Some thing wrong with Coroutine system.")
-        print("Please make a issue in Github with your ERROR code.")
-        raise e
-    finally:
-        print("Finish")
