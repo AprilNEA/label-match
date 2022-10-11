@@ -10,12 +10,13 @@ together in another file.
 1. An empty folder to hold your output files
 2. A folder full of labelme label datas
 
-You can get further information [here](https://roboflow.com/formats/yolo-darknet-txt)
 
 There are only one standard output format of labelme and you can get an
 example [here](https://github.com/wkentaro/labelme/blob/main/examples/tutorial/apc2016_obj3.json).
 
 3. A folder full of labelimg label datas
+
+You can get further information [here](https://roboflow.com/formats/yolo-darknet-txt)
 
 The label output format of labelimg is YOLO Darknet TXT, ex:
 
