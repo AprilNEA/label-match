@@ -3,6 +3,20 @@
 This is a script that will match the labels of labelimg and labelme of the same image one by one and output them
 together in another file.
 
+## Run
+
+### Prepare in advance
+
+1. An empty folder to hold your output files
+2. A folder full of labelme label datas
+
+You can get further information [here](https://roboflow.com/formats/yolo-darknet-txt)
+
+There are only one standard output format of labelme and you can get an
+example [here](https://github.com/wkentaro/labelme/blob/main/examples/tutorial/apc2016_obj3.json).
+
+3. A folder full of labelimg label datas
+
 The label output format of labelimg is YOLO Darknet TXT, ex:
 
 ```
@@ -10,23 +24,21 @@ The label output format of labelimg is YOLO Darknet TXT, ex:
 1 0.245 0.424 0.046 0.08
 ```
 
-You can get further information [here](https://roboflow.com/formats/yolo-darknet-txt)
+4. A file containing a list of labelimg labels
 
-There are only one standard output format of labelme and you can get an
-example [here](https://github.com/wkentaro/labelme/blob/main/examples/tutorial/apc2016_obj3.json).
-
-## Run
+You should separate your labels with spaces
 
 ### 1.Poetry(recommend)
 
 ```shell
-poetry run python3 src.py \
---labelme_dir <your_labelme_path>
---labelimg_dir <your_labelimg_path>
---output_dir <your_output_path>
+poetry run python3 label-match.py \
+--labelme_dir <your_labelme_path> \
+--labelimg_dir <your_labelimg_path> \
+--output_dir <your_output_path> \
+--classes_file <your_classes_path>
 ```
 
-*: poetry will help you install dependencies when you first run it.
+_*_: poetry will help you install dependencies when you first run it.
 
 ### 2.Pip3
 
@@ -39,10 +51,11 @@ pip3 install -r requirements.txt
 Then run it:
 
 ```shell
-python3 src.py \
---labelme_dir <your_labelme_path>
---labelimg_dir <your_labelimg_path>
---output_dir <your_output_path>
+python3 label-match.py \
+--labelme_dir <your_labelme_path> \
+--labelimg_dir <your_labelimg_path> \
+--output_dir <your_output_path> \
+--classes_file <your_classes_path>
 ```
 
 ## Contribute
